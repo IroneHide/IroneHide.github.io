@@ -1,0 +1,414 @@
+.general-top {
+background: #242424;
+height: 74px;
+width: 100%;
+text-align: center;
+border-bottom: #999 2px solid;
+}
+.general-top .general-top-inner {
+margin: 0 auto;
+text-align: center;
+width: 960px;
+}
+
+.logo-dm-f {
+  background: url("http://mixlife.tk/uploads/attach/1/00de3747f58d707c8ede.png") 0 0 no-repeat;
+  width: 222px;
+  height: 34px;
+  display: block;
+  margin: 20px auto;
+  margin-left: 80px;
+}
+
+.enter-form {
+width: 460px;
+}
+.enter-form .input {
+background: #555;
+border: #666 1px solid;
+height: 22px;
+padding: 4px 5px;
+width: 170px;
+color: #f8f8f8;
+margin: 8px 5px 3px 0;
+font-size: 14px;
+line-height: 22px;
+}
+.enter-form .input {
+background: #555;
+border: #666 1px solid;
+height: 22px;
+padding: 4px 5px;
+width: 170px;
+color: #f8f8f8;
+margin: 8px 5px 3px 0;
+font-size: 14px;
+line-height: 22px;
+}
+.enter-form .buttonz {
+height: 32px;
+line-height: 32px;
+font-size: 12px;
+border-radius: 2px;
+-webkit-border-radius: 2px;
+margin: 8px 0 0 0;
+width: 86px;
+}
+.clearfix {
+zoom:1;
+}
+.enter-form .remember-me {
+width: 190px;
+text-align: left;
+color: #EDEDED;
+}
+.enter-form .remember-me, .enter-form .forget {
+font-size: 13px;
+margin: 3px;
+}
+.enter-form .forget {
+color: #EDEDED;
+}
+.buttonz {
+display: block;
+border-radius: 3px;
+-webkit-border-radius: 3px;
+color: #fff;
+font-size: 16px;
+height: 42px;
+line-height: 42px;
+border: 0;
+margin: 0;
+padding: 0 15px;
+cursor: pointer;
+text-align: center;
+cursor: pointer;
+}
+.grey {
+background: #999;
+}
+.buttonz.grey:hover{background-color:#666
+}
+.general-banner {
+height: 400px;
+width: 100%;
+background-position: center center;
+background-size: cover;
+text-align: center;
+}
+.general-banner-inner {
+height: 400px;
+width: 100%;
+background: transparent url(../images/cross-back.png) 0 0 repeat scroll;
+position: relative;
+}
+.general-banner-cont {
+width: 960px;
+}
+.general-cage-cont {
+width: 960px;
+height: 400px;
+position: absolute;
+top: 50%;
+margin-top: -200px;
+left: 50%;
+margin-left: -480px;
+color: #fff;
+}
+.general-intro {
+width: 540px;
+text-transform: uppercase;
+color: #fff;
+text-align: left;
+}
+.general-intro .h1 {
+font-weight: bold;
+text-shadow: #000 1px 1px 3px;
+font-size: 28px;
+line-height: 36px;
+padding: 40px 0;
+color: #fff;
+}
+.general-intro .desc {
+font-size: 20px;
+margin-bottom: 15px;
+text-shadow: #000 1px 1px 3px;
+font-weight: 200;
+line-height: 42px;
+height: 42px;
+}
+.intro-form {
+position: relative;
+}
+.register-form {
+width: 320px;
+height: 360px;
+padding: 40px 20px 0;
+background: rgba(0,0,0,0.4) scroll repeat;
+text-align: left;
+}
+.register-form .input {
+width: 294px;
+margin: 0 0 10px 0;
+}
+.input-text, .register-form .input {
+height: 20px;
+padding: 8px 12px;
+font-size: 15px;
+border: #666 1px solid;
+background: rgba(0,0,0,0.8) repeat scroll;
+color: #ccc;
+display: block;
+}
+.register-form .register-buttonz {
+width: 320px;
+text-transform: uppercase;
+position: relative;
+font-size: 20px;
+height: 52px;
+line-height: 52px;
+background: #6383a8;
+color: #fff;
+}
+.register-buttonz:hover {
+width: 320px;
+text-transform: uppercase;
+position: relative;
+font-size: 20px;
+height: 52px;
+line-height: 52px;
+background: #5c7ca1;
+color: #fff;
+}
+.input-text, .register-form .inputs {
+width: 100%;
+padding: 8px 12px;
+font-size: 15px;
+border: #666 1px solid;
+background: rgba(0,0,0,0.8) repeat scroll;
+color: #ccc;
+cursor: pointer;
+margin-bottom: 10px;
+display: block;
+}
+.register-form .stylized-select {
+margin-bottom: 10px;
+}
+.sty:after {
+background: transparent url(https://s3-eu-west-1.amazonaws.com/tp.daddymotors.com/images/select-arrow.png) 0 0 no-repeat;
+content: '';
+display: block;
+height: 10px;
+position: absolute;
+right: 18px;
+top: 18px;
+width: 10px;
+cursor: pointer;
+border: 0;
+}
+.errr{
+width: 80%;
+background: none;
+color: #F90202;
+font-size: 15px;
+}
+.errr{
+background: rgba(222,57,18,1) scroll repeat;
+color: #fff;
+padding: 5px;
+border-radius: 10px;
+z-index: 999;
+position: absolute;
+width: 200px;
+font-size: 15px;
+left: 96%;
+top: 0px;
+}
+.g1{
+font-weight: bold;
+text-shadow: #000 1px 1px 3px;
+font-size: 32px;
+margin-top: -30px;
+text-align: center;
+line-height: 36px;
+padding-bottom: 20px;
+color: #fff;
+}
+.general-cont-wrap {
+width: 100%;
+background: transparent url(../images/darkdenim3.png) 0 0 repeat;
+}
+.general-cont {
+background: rgba(0,0,0,0.4) scroll repeat;
+width: 960px;
+margin: 0 auto;
+text-align: left;
+padding-bottom: 20px;
+}
+.no-touch .gotalk:hover {
+cursor: default;
+text-decoration: none;
+}
+.gotalk {
+padding: 30px;
+background: #171717;
+border-bottom: #666 8px dashed;
+border-top: #666 8px dashed;
+display: block;
+cursor: default;
+}
+.gotalk .text-p {
+color: #888;
+font-size: 16px;
+line-height: 25px;
+}
+.gotalk .text-p .p {
+margin-bottom: 10px;
+}
+.footers {
+background: #242424;
+padding: 40px 0;
+}
+.footers .footer-inner {
+width: 960px;
+margin: 0 auto;
+}
+.authorization .lang-menu, .authorization .mobile-version {
+float: right;
+}
+.footer-menu {
+margin: 0 200px;
+text-align: center;
+height: 20px;
+}
+.auth-menu {
+display: inline-block;
+}
+.auth-menu .menu-li {
+list-style: none;
+float: left;
+padding: 0 5px;
+margin-left: 0px;
+}
+.footers .auth-menu .menu-a, .footer .mobile-version .ahref {
+color: #999;
+}
+.auth-menu .menu-li .menu-a {
+display: block;
+color: #999;
+font-size: 12px;
+}
+.auth-menu .menu-li .menu-a:hover {
+text-decoration:none;
+color: #C8C8C8;
+font-size: 12px;
+}
+.footers .copy {
+font-size: 11px;
+color: #666;
+}
+.general-cage-cont .general-cage-table {
+display: table-cell;
+height: 400px;
+vertical-align: middle;
+width: 100%;
+}
+.general-cage.recover-password {
+width: 960px;
+text-align: left;
+}
+.general-cage.recover-password .enter {
+font-size: 28px;
+margin-bottom: 20px;
+text-transform: uppercase;
+font-weight: bold;
+text-shadow: #000 1px 1px 3px;
+}
+.general-cage.recover-password .enter-desc {
+font-size: 20px;
+margin-bottom: 45px;
+}
+.general-cage.recover-password .invite-line {
+margin-bottom: 15px;
+}
+.general-cage.recover-password .login {
+margin-right: 10px;
+width: 320px;
+height: 24px;
+cursor: auto;
+}
+.register-note {
+margin-left: 20px;
+font-size: 12px;
+}
+.register-note .table-cell {
+display: table-cell;
+height: 42px;
+vertical-align: middle;
+}
+.general-cage.valid-account {
+text-align: center;
+width: 960px;
+color: #fff;
+}
+.general-cage.valid-account .img-avatar {
+border-radius: 60px;
+-webkit-border-radius: 60px;
+margin: 0 auto 15px;
+width: 120px;
+height: 120px;
+}
+.general-cage.valid-account .surname {
+margin: 0 auto 30px;
+}
+.general-cage.valid-account .surname .torange {
+font-size: 18px;
+font-weight: bold;
+}
+.torange {
+color: #f8c26b;
+}
+.general-cage.valid-account .not-me {
+color: #fff;
+}
+.general-cage.valid-account .img-avatar {
+border-radius: 60px;
+-webkit-border-radius: 60px;
+margin: 0 auto 15px;
+width: 120px;
+height: 120px;
+}
+.buttonz.greenz {
+background: #8ab800;
+color: #fff;
+}
+.buttonz.greenz:hover {
+background: #AEE800;
+color: #fff;
+}
+.err-r {
+background: #FA4040;
+border-radius: 15px;
+padding: 10px;
+margin: 0 auto 15px;
+margin-bottom: 10px;
+line-height: 19px;
+font-size: 13px;
+}
+.general-cage.valid-account .buttonz.greenz {
+margin: 0 auto 15px;
+width: 160px;
+}
+.general-cage.text-page {
+text-align: center;
+width: 960px;
+}
+.general-cage.text-page .text {
+font-size: 24px;
+line-height: 28px;
+margin-bottom: 30px;
+}
+.general-cage.text-page .buttonz.greenz, .general-cage.text-page .buttonz.orangez {
+margin: 0 auto;
+width: 180px;
+}
