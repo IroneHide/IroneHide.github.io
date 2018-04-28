@@ -1,343 +1,399 @@
-<?php
-/* 
-	Appointment: Главная страница
-	File: index.php
-	Author: vii zona 
-	Engine: Vii Engine
-	Copyright: vii zona (с) 2011
-	e-mail: vii zona
-	URL: http://viirips.ru/
-	ICQ: viirips.ru
-	Данный код защищен авторскими правами
-*/
-if(isset($_POST["PHPSESSID"])){
-	session_id($_POST["PHPSESSID"]);
+<?php 
+// +------------------------------------------------------------------------+
+// | @author Deen Doughouz (DoughouzForest)
+// | @author_url 1: http://www.wowonder.com
+// | @author_url 2: http://codecanyon.net/user/doughouzforest
+// | @author_email: wowondersocial@gmail.com   
+// +------------------------------------------------------------------------+
+// | WoWonder - The Ultimate Social Networking Platform
+// | Copyright (c) 2017 WoWonder. All rights reserved.
+// +------------------------------------------------------------------------+
+require_once('assets/init.php');
+
+
+
+if (empty($wo['config']['update_db_153'])) {
+    exit('Please upload ./Update Guide/v1.5.3/update.php from the update zip file, and run it: ' . $site_url . '/update.php');
 }
-@session_start();
-@ob_start();
-@ob_implicit_flush(0);
-
-@error_reporting(E_ALL ^ E_WARNING ^ E_NOTICE);
-
-define('MOZG', true);
-define('ROOT_DIR', dirname (__FILE__));
-define('ENGINE_DIR', ROOT_DIR.'/system');
-
-header('Content-type: text/html; charset=utf-8');
-
-//AJAX
-$ajax = $_POST['ajax'];
-
-$logged = false;
-$user_info = false;
-
-include ENGINE_DIR.'/init.php';
-
-//Если юзер перешел по реф ссылке, то добавляем ид реферала в сессию
-if($_GET['reg']) $_SESSION['ref_id'] = intval($_GET['reg']);
-
-//Опридиления браузера
-if(stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.0')) $xBrowser = 'ie6';
-elseif(stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE 7.0')) $xBrowser = 'ie7';
-elseif(stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE 8.0')) $xBrowser = 'ie8';
-if($xBrowser == 'ie6' OR $xBrowser == 'ie7' OR $xBrowser == 'ie8')
-	header("Location: /badbrowser.php");
-
-//Загружаем кол-во новых новостей
-$CacheNews = mozg_cache('user_'.$user_info['user_id'].'/new_news');
-if($CacheNews){
-	$new_news = "<div class=\"headm_newac\" style=\"margin-left:18px;margin-top:-15px;\">{$CacheNews}</div>";
-	$news_link = '/notifications';
+if ($wo['loggedin'] == true) {
+    $update_last_seen = Wo_LastSeen($wo['user']['user_id']);
+} else if (!empty($_SERVER['HTTP_HOST'])) {
+    $server_scheme = @$_SERVER["HTTPS"];
+    $pageURL = ($server_scheme == "on") ? "https://" : "http://";
+    $http_url = $pageURL . $_SERVER['HTTP_HOST'];
+    $url = parse_url($wo['config']['site_url']);
+    if (!empty($url)) {
+        if ($url['scheme'] == 'http') {
+            if ($http_url != 'http://' . $url['host']) { 
+               header('Location: ' . $wo['config']['site_url']);
+               exit();
+            }
+        } else {
+            if ($http_url != 'https://' . $url['host']) { 
+               header('Location: ' . $wo['config']['site_url']);
+               exit();
+            }
+        }
+    }
+}
+if (!empty($_GET['ref']) && $wo['loggedin'] == false && !isset($_COOKIE['src'])) {
+    $get_ip = get_ip_address();
+    if (!isset($_SESSION['ref']) && !empty($get_ip)) {
+        $_GET['ref'] = Wo_Secure($_GET['ref']);
+        $ref_user_id = Wo_UserIdFromUsername($_GET['ref']);
+        $user_date = Wo_UserData($ref_user_id);
+        if (!empty($user_date)) {
+            if (ip_in_range($user_date['ip_address'], '/24') === false && $user_date['ip_address'] != $get_ip) {
+                $_SESSION['ref'] = $user_date['username'];
+            }
+        }
+    }
+}
+if (!isset($_COOKIE['src'])) {
+    @setcookie('src', '1', time() + 31556926, '/');
+}
+$page = '';
+if ($wo['loggedin'] == true && !isset($_GET['link1'])) {
+    $page = 'home';
+} elseif (isset($_GET['link1'])) {
+    $page = $_GET['link1'];
+}
+if ((!isset($_GET['link1']) && $wo['loggedin'] == false) || (isset($_GET['link1']) && $wo['loggedin'] == false && $page == 'home')) {
+    $page = 'welcome';
+}
+if ($wo['config']['maintenance_mode'] == 1) {
+    if ($wo['loggedin'] == false) {
+        if ($page == 'admincp') {
+           $page = 'welcome';
+        } else {
+            $page = 'maintenance';
+        }
+    } else {
+        if (Wo_IsAdmin() === false) {
+            $page = 'maintenance';
+        }
+    } 
+}
+if (!empty($_GET['m'])) {
+    $page = 'welcome';
+}
+switch ($page) {
+    case 'maintenance':
+        include('sources/maintenance.php');
+        break;
+    case 'get_news_feed':
+        include('sources/get_news_feed.php');
+        break;
+    case 'video-call':
+        include('sources/video.php');
+        break;
+    case 'video-call-api':
+        include('sources/video_call_api.php');
+        break;    
+    case 'home':
+        include('sources/home.php');
+        break;
+    case 'welcome':
+        include('sources/welcome.php');
+        break;
+    case 'register':
+        include('sources/register.php');
+        break;
+    case 'confirm-sms':
+        include('sources/confirm_sms.php');
+        break;   
+    case 'forgot-password':
+        include('sources/forgot_password.php');
+        break;    
+    case 'reset-password':
+        include('sources/reset_password.php');
+        break;    
+    case 'start-up':
+        include('sources/start_up.php');
+        break;
+    case 'activate':
+        include('sources/activate.php');
+        break;
+    case 'search':
+        include('sources/search.php');
+        break;
+    case 'timeline':
+        include('sources/timeline.php');
+        break;
+    case 'pages':
+        include('sources/my_pages.php');
+        break;
+    case 'go-pro':
+        include('sources/go_pro.php');
+        break;
+    case 'page':
+        include('sources/page.php');
+        break;
+    case 'groups':
+        include('sources/my_groups.php');
+        break;
+    case 'group':
+        include('sources/group.php');
+        break;
+    case 'create-group':
+        include('sources/create_group.php');
+        break;
+    case 'group-setting':
+        include('sources/group_setting.php');
+        break;
+    case 'create-page':
+        include('sources/create_page.php');
+        break;
+    case 'setting':
+        include('sources/setting.php');
+        break;
+    case 'page-setting':
+        include('sources/page_setting.php');
+        break;
+    case 'messages':
+        include('sources/messages.php');
+        break;
+    case 'logout':
+        include('sources/logout.php');
+        break;
+    case '404':
+        include('sources/404.php');
+        break;
+    case 'post':
+        include('sources/story.php');
+        break;
+    case 'game':
+        include('sources/game.php');
+        break;
+    case 'games':
+        include('sources/games.php');
+        break;
+    case 'new-game':
+        include('sources/new_games.php');
+        break;
+    case 'saved-posts':
+        include('sources/savedPosts.php');
+        break;
+    case 'hashtag':
+        include('sources/hashtag.php');
+        break;
+    case 'terms':
+        include('sources/term.php');
+        break;
+    case 'albums':
+        include('sources/my_albums.php');
+        break;
+    case 'album':
+        include('sources/album.php');
+        break;
+    case 'create-album':
+        include('sources/create_album.php');
+        break;
+    case 'contact-us':
+        include('sources/contact.php');
+        break;
+    case 'user-activation':
+        include('sources/user_activation.php');
+        break;
+    case 'upgraded':
+        include('sources/upgraded.php');
+        break;
+    case 'oops':
+        include('sources/oops.php');
+        break;
+    case 'boosted-pages':
+        include('sources/boosted_pages.php');
+        break;
+    case 'boosted-posts':
+        include('sources/boosted_posts.php');
+        break;
+    case 'new-product':
+        include('sources/new_product.php');
+        break; 
+    case 'edit-product':
+        include('sources/edit_product.php');
+        break;  
+    case 'products':
+        include('sources/products.php');
+        break;   
+    case 'my-products':
+        include('sources/my_products.php');
+        break;    
+    case 'site-pages':
+        include('sources/site_pages.php');
+        break;
+    case 'blogs':
+        include('sources/blog.php');
+        break;
+    case 'my-blogs':
+        include('sources/my_blogs.php');
+        break;
+    case 'create-blog':
+        include('sources/create_blog.php');
+        break;
+    case 'read-blog':
+        include('sources/read_blog.php');
+        break;
+    case 'edit-blog':
+        include('sources/edit_blog.php');
+        break;
+    case 'blog-category':
+        include('sources/blog_category.php');
+        break;
+    case 'forum':
+        include('sources/forum/forum.php');
+        break;
+    case 'forum-members':
+        include('sources/forum/forum_members.php');
+        break;
+    case 'forum-members-byname':
+        include('sources/forum/forum_members_byname.php');
+        break;
+    case 'forum-events':
+        include('sources/forum/forum_events.php');
+        break;
+    case 'forum-search':
+        include('sources/forum/forum_search.php');
+        break;
+    case 'forum-search-result':
+        include('sources/forum/forum_search.php');
+        break;
+    case 'forum-help':
+        include('sources/forum/forum_help.php');
+        break;
+    case 'forums':
+        include('sources/forum/forumdisplay.php');
+        break;
+    case 'forumaddthred':
+        include('sources/forum/forums_add_thread.php');
+        break;
+    case 'showthread':
+        include('sources/forum/forum_showthread.php');
+        break;
+    case 'threadreply':
+        include('sources/forum/forum_threadreply.php');
+        break;
+    case 'threadquote':
+        include('sources/forum/forum_threadquote.php');
+        break;
+    case 'editreply':
+        include('sources/forum/forum_editreply.php');
+        break;
+    case 'deletereply':
+        include('sources/forum/forum_deletereply.php');
+        break;
+    case 'mythreads':
+        include('sources/forum/forum_mythreads.php');
+        break;
+    case 'mymessages':
+        include('sources/forum/forum_mymessages.php');
+        break;
+    case 'edithread':
+        include('sources/forum/forum_edithread.php');
+        break;
+    case 'deletethread':
+        include('sources/forum/forum_deletethread.php');
+        break;
+     case 'create-event':
+        include('sources/events/create_event.php');
+        break;
+    case 'edit-event':
+        include('sources/events/edit_event.php');
+        break;
+    case 'events':
+        include('sources/events/events_upcomming.php');
+        break;
+    case 'events-going':
+        include('sources/events/events_going.php');
+        break;
+    case 'events-interested':
+        include('sources/events/events_interested.php');
+        break;
+    case 'events-past':
+        include('sources/events/events_past.php');
+        break;
+    case 'show-event':
+        include('sources/events/show_event.php');
+        break;
+    case 'events-invited':
+        include('sources/events/events_invited.php');
+        break;
+    case 'my-events':
+        include('sources/events/my_events.php');
+        break;
+   case 'oauth':
+        include('sources/oauth.php');
+        break;
+    case 'app_api':
+        include('sources/apps_api.php');
+        break;
+    case 'authorize':
+        include('sources/authorize.php');
+        break;
+    case 'app-setting':
+        include('sources/app_setting.php');
+        break;
+    case 'developers':
+        include('sources/developers.php');
+        break;
+    case 'create-app':
+        include('sources/create_app.php');
+        break;
+    case 'app':
+        include('sources/app_page.php');
+        break;
+    case 'apps':
+        include('sources/apps.php');
+        break;
+    case 'sharer':
+        include('sources/sharer.php');
+        break;
+    case 'movies':
+        include('sources/movies/movies.php');
+        break;
+    case 'movies-genre':
+        include('sources/movies/movies_genre.php');
+        break;
+    case 'movies-country':
+        include('sources/movies/movies_country.php');
+        break;
+    case 'watch-film':
+        include('sources/movies/watch_film.php');
+        break;
+    case 'ads':
+        include('sources/ads/ads.php');
+        break;
+    case 'wallet':
+        include('sources/ads/wallet.php');
+        break;
+    case 'send_money':
+        include('sources/ads/send_money.php');
+        break;
+    case 'create-ads':
+        include('sources/ads/create_ads.php');
+        break;
+    case 'edit-ads':
+        include('sources/ads/edit_ads.php');
+        break;
+    case 'manage-ads':
+        include('sources/ads/admin.php');
+        break;
+    case 'create-status':
+        include('sources/status/create.php');
+        break;
+    case 'friends-nearby':
+        include('sources/friends_nearby.php');
+        break;
+    case 'more-status':
+        include('sources/status/more-status.php');
+        break;
+}
+if (empty($wo['content'])) {
+    include('sources/404.php');
 }
 
-//Загружаем кол-во новых подарков
-$CacheGift = mozg_cache("user_{$user_info['user_id']}/new_gift");
-if($CacheGift){
-	$new_ubm = "<div class=\"headm_newac\" style=\"margin-left:20px\">{$CacheGift}</div>";
-	$gifts_link = "/gifts{$user_info['user_id']}?new=1";
-} else
-	$gifts_link = '/balance';
+echo Wo_Loadpage('container');
 
-//Новые сообщения
-$user_pm_num = $user_info['user_pm_num'];
-if($user_pm_num)
-	$user_pm_num = "<div class=\"headm_newac\" style=\"margin-left:15px;margin-top:-10px;\">{$user_pm_num}</div>";
-else
-	$user_pm_num = '';
-	
-//Новые друзья
-$user_friends_demands = $user_info['user_friends_demands'];
-if($user_friends_demands){
-	$demands = "<div class=\"headm_newac\">{$user_friends_demands}</div>";
-	$requests_link = '/requests';
-} else
-	$demands = '';
-	
-//ТП
-$user_support = $user_info['user_support'];
-if($user_support)
-	$support = "<div class=\"headm_newac\" style=\"margin-left:26px\">{$user_support}</div>";
-else
-	$support = '';
-	
-//Отметки на фото
-if($user_info['user_new_mark_photos']){
-	$new_photos_link = 'newphotos';
-	$new_photos = "<div class=\"headm_newac\" style=\"margin-left:22px\">".$user_info['user_new_mark_photos']."</div>";
-} else {
-	$new_photos = '';
-	$new_photos_link = $user_info['user_id'];
-}
-
-//Приглашения в сообщества
-if($user_info['invties_pub_num']){
-	
-	$new_groups = "<div class=\"headm_newac\" style=\"margin-left:26px\">".$user_info['invties_pub_num']."</div>";
-	$new_groups_lnk = '/groups?act=invites';
-
-} else {
-	
-	$new_groups = '';
-	$new_groups_lnk = '/groups';
-	
-}
-
-//Если включен AJAX то загружаем стр.
-if($ajax == 'yes'){
-
-	//Если есть POST Запрос и значение AJAX, а $ajax не равняется "yes" то не пропускаем
-	if($_SERVER['REQUEST_METHOD'] == 'POST' AND $ajax != 'yes')
-		die('Неизвестная ошибка');
-
-	if($spBar)
-		$ajaxSpBar = "$('#speedbar').show().html('{$speedbar}')";
-	else
-		$ajaxSpBar = "$('#speedbar').hide()";
-
-	$result_ajax = <<<HTML
-<script type="text/javascript">
-document.title = '{$metatags['title']}';
-{$ajaxSpBar};
-document.getElementById('new_msg').innerHTML = '{$user_pm_num}';
-document.getElementById('new_news').innerHTML = '{$new_news}';
-document.getElementById('new_ubm').innerHTML = '{$new_ubm}';
-document.getElementById('ubm_link').setAttribute('href', '{$gifts_link}');
-document.getElementById('new_support').innerHTML = '{$support}';
-document.getElementById('news_link').setAttribute('href', '/news{$news_link}');
-document.getElementById('new_requests').innerHTML = '{$demands}';
-document.getElementById('new_photos').innerHTML = '{$new_photos}';
-document.getElementById('requests_link_new_photos').setAttribute('href', '/albums/{$new_photos_link}');
-document.getElementById('requests_link').setAttribute('href', '/friends{$requests_link}');
-$('#new_groups').html('{$new_groups}');
-$('#new_groups_lnk').attr('href', '{$new_groups_lnk}');
-</script>
-{$tpl->result['info']}{$tpl->result['content']}
-HTML;
-	echo str_replace('{theme}', '/templates/'.$config['temp'], $result_ajax);
-
-	$tpl->global_clear();
-	$db->close();
-
-	if($config['gzip'] == 'yes')
-		GzipOut();
-		
-	die();
-} 
-
-//Если обращение к модулю регистрации или главной и юзер не авторизован то показываем регистрацию
-if($go == 'register' OR $go == 'main' AND !$logged)
-	include ENGINE_DIR.'/modules/register_main.php';
-
-$tpl->load_template('main.tpl');
-
-//Если юзер залогинен
-if($logged){
-	$tpl->set_block("'\\[not-logged\\](.*?)\\[/not-logged\\]'si","");
-	$tpl->set('[logged]','');
-	$tpl->set('[/logged]','');
-	$tpl->set('{my-page-link}', '/u'.$user_info['user_id']);
-	$tpl->set('{my-id}', $user_info['user_id']);
-	
-
-//Подгрузка Фона
-$row_fon = $db->super_query("SELECT user_img_fon FROM `".PREFIX."_users` WHERE user_id = '{$user_id}'");
-  if($row_fon['user_img_fon']){
-   $tpl->set('{fon_facemy}', $row_fon['user_img_fon']); 
-  } else {      
-   $tpl->set('{fon_facemy}', '{theme}/images/lot.jpg');
-  }
-
-	
-	//############################# fon by  ################################//
-		if($user_id = $id){
-				$user_img_fon = $db->super_query("SELECT user_img_fon FROM `".PREFIX."_users` WHERE user_id = '{$user_id}'");
-				if($user_img_fon['user_img_fon']){
-						$img = $user_img_fon['user_img_fon'];
-					}else{
-						$img = '{theme}/images/darkdenim3.png';
-					}
-					$tpl->set('{url_img}', '<style type="text/css" media="all">back {background: url('.$img.') no-repeat center top fixed;margin:0px;padding:0px;-moz-background-size:cover;-o-background-size:100% auto;-webkit-background-size:100% auto;-khtml-background-size:cover;}</style>');
-			} else {
-				$user_img_fon = $db->super_query("SELECT user_img_fon FROM `".PREFIX."_users` WHERE user_id = '{$id}'");
-					if($user_img_fon['user_img_fon']){
-						$img = $user_img_fon['user_img_fon'];
-					}else{
-						$img = '{theme}/images/darkdenim3.png';
-					}
-					$tpl->set('{url_img}', '<style type="text/css" media="all">back {background: url('.$img.') no-repeat center top fixed;margin:0px;padding:0px;-moz-background-size:cover;-o-background-size:100% auto;-webkit-background-size:100% auto;-khtml-background-size:cover;}</style>');
-			}
-	
-	
-	//Заявки в друзья
-	$user_friends_demands = $user_info['user_friends_demands'];
-	if($user_friends_demands){
-		$tpl->set('{demands}', $demands);
-		$tpl->set('{requests-link}', $requests_link);
-	} else {
-		$tpl->set('{demands}', '');
-		$tpl->set('{requests-link}', '');
-	}
-	
-	//Новости
-	if($CacheNews){
-		$tpl->set('{new-news}', $new_news);
-		$tpl->set('{news-link}', $news_link);
-	} else {
-		$tpl->set('{new-news}', '');
-		$tpl->set('{news-link}', '');
-	}
-	
-	//Сообщения
-	if($user_pm_num)
-		$tpl->set('{msg}', $user_pm_num);
-	else 
-		$tpl->set('{msg}', '');
-	
-	//Поддержка
-	if($user_support)
-		$tpl->set('{new-support}', $support);
-	else 
-		$tpl->set('{new-support}', '');
-	
-	//Отметки на фото
-	if($user_info['user_new_mark_photos']){
-		$tpl->set('{my-id}', 'newphotos');
-		$tpl->set('{new_photos}', $new_photos);
-	} else 
-		$tpl->set('{new_photos}', '');
-
-	//UBM
-	if($CacheGift){
-		$tpl->set('{new-ubm}', $new_ubm);
-		$tpl->set('{ubm-link}', $gifts_link);
-	} else {
-		$tpl->set('{new-ubm}', '');
-		$tpl->set('{ubm-link}', $gifts_link);
-	}
-
-	
-if($logged){
-
-        if($user_info['user_photo'])
-
-                $ava = $config['home_url'].'uploads/users/'.$user_info['user_id'].'/'.$user_info['user_photo'];
-
-        else 
-
-                $ava = '/templates/Default/images/no_ava.gif';
-
-        $myphoto_header.='<img src="'.$ava.'" width="200px" />'."\n";
-
-        $tpl->set('{myphoto_header}', $myphoto_header);//Фото в шапке
-        $tpl->set('{name}', $user_name_lastname_exp[0]); // Имя в шапке
-		$tpl->set('{lastname}', $user_name_lastname_exp[1]);
-		$tpl->set('{my-name}', $user_info['user_search_pref']);
-}
-	
-	
-	//Приглашения в сообщества
-	if($user_info['invties_pub_num']){
-		
-		$tpl->set('{groups-link}', $new_groups_lnk);
-		$tpl->set('{new_groups}', $new_groups);
-		
-	} else {
-		
-		$tpl->set('{groups-link}', $new_groups_lnk);
-		$tpl->set('{new_groups}', '');
-		
-	}
-
-} else {
-	$tpl->set_block("'\\[logged\\](.*?)\\[/logged\\]'si","");
-	$tpl->set('[not-logged]','');
-	$tpl->set('[/not-logged]','');
-	$tpl->set('{my-page-link}', '');
-}
-
-$tpl->set('{header}', $headers);
-$tpl->set('{speedbar}', $speedbar);
-$tpl->set('{mobile-speedbar}', $mobile_speedbar);
-$tpl->set('{info}', $tpl->result['info']);
-
-// FOR MOBILE VERSION 1.0
-if($config['temp'] == 'mobile'){
-
-	$tpl->result['content'] = str_replace('onClick="Page.Go(this.href); return false"', '', $tpl->result['content']);
-	
-	if($user_info['user_status'])
-		$tpl->set('{status-mobile}', '<span style="font-size:11px;color:#000">'.$user_info['user_status'].'</span>');
-	else
-		$tpl->set('{status-mobile}', '<span style="font-size:11px;color:#999">установить статус</span>');
-	
-	$new_actions = $user_friends_demands+$user_support+$CacheNews+$CacheGift+$user_info['user_pm_num'];
-
-	if($new_actions)
-		$tpl->set('{new-actions}', "<div class=\"headm_newac\" style=\"margin-top:5px;margin-left:30px\">+{$new_actions}</div>");
-	else
-		$tpl->set('{new-actions}', "");
-	
-}
-
-$tpl->set('{content}', $tpl->result['content']);
-
-if($spBar)
-	$tpl->set_block("'\\[speedbar\\](.*?)\\[/speedbar\\]'si","");
-else {
-	$tpl->set('[speedbar]','');
-	$tpl->set('[/speedbar]','');
-}
-
-
-
-//BUILD JS
-if($logged)
-	$tpl->set('{js}', '<script type="text/javascript" src="{theme}/js/jquery.lib.js"></script>
-<script type="text/javascript" src="{theme}/js/'.$checkLang.'/lang.js"></script>
-<script type="text/javascript" src="{theme}/js/main.js"></script>
-<script type="text/javascript" src="{theme}/js/profile.js"></script>');
-else
-	$tpl->set('{js}', '<script type="text/javascript" src="{theme}/js/jquery.lib.js"></script>
-<script type="text/javascript" src="{theme}/js/'.$checkLang.'/lang.js"></script>
-<script type="text/javascript" src="{theme}/js/main.js"></script>');
-
-// FOR MOBILE VERSION 1.0
-if($user_info['user_photo']) $tpl->set('{my-ava}', "/uploads/users/{$user_info['user_id']}/50_{$user_info['user_photo']}");
-else $tpl->set('{my-ava}', "{theme}/images/no_ava_50.png");
-$tpl->set('{my-name}', $user_info['user_search_pref']);
-
-if($check_smartphone) $tpl->set('{mobile-link}', '<a href="/index.php?act=change_mobile">мобильная версия</a>');
-else $tpl->set('{mobile-link}', '');
-
-$tpl->set('{lang}', $rMyLang);
-
-$tpl->compile('main');
-
-echo str_replace('{theme}', '/templates/'.$config['temp'], $tpl->result['main']);
-
-$tpl->global_clear();
-$db->close();
-
-if($config['gzip'] == 'yes')
-	GzipOut();
+mysqli_close($sqlConnect);
+unset($wo);
 ?>
