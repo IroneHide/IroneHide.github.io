@@ -1,399 +1,695 @@
-<?php 
-// +------------------------------------------------------------------------+
-// | @author Deen Doughouz (DoughouzForest)
-// | @author_url 1: http://www.wowonder.com
-// | @author_url 2: http://codecanyon.net/user/doughouzforest
-// | @author_email: wowondersocial@gmail.com   
-// +------------------------------------------------------------------------+
-// | WoWonder - The Ultimate Social Networking Platform
-// | Copyright (c) 2017 WoWonder. All rights reserved.
-// +------------------------------------------------------------------------+
-require_once('assets/init.php');
+<?php
+/*
+|---------------------------------------------------------------
+| session_start - Открываем Сессию для php
+|---------------------------------------------------------------
+|
+| Сессии используют стандартные, хорошо известные способы передачи
+| данных. Собственно, других-то просто и нет.
+| Идентификатор - это обычная переменная. По умолчанию ее имя - PHPSESSID. 
+| Задача PHP отправить ее браузеру, чтобы тот вернул ее со следующим запросом.
+| Из уже упоминавшегося раздела FAQ ясно, что переменную можно передать 
+| только двумя способами: в cookies или POST/GET запросом.
+| PHP использует оба варианта. Вызов сессии session_start()
+| 
+| За это отвечают две настройки в php.ini:
+| 
+| session.use_cookies - если равно 1, то PHP передает идентификатор в 
+| cookies, если 0 - то нет.
+| session.use_trans_sid если равно 1, то PHP передает его, добавляя к
+| URL и формам, если 0 - то нет.
+|
+|
+| NO TRAILING SLASH!
+|
+*/
 
+if(isset($_POST["PHPSESSID"])){
 
+	session_id($_POST["PHPSESSID"]);
 
-if (empty($wo['config']['update_db_153'])) {
-    exit('Please upload ./Update Guide/v1.5.3/update.php from the update zip file, and run it: ' . $site_url . '/update.php');
-}
-if ($wo['loggedin'] == true) {
-    $update_last_seen = Wo_LastSeen($wo['user']['user_id']);
-} else if (!empty($_SERVER['HTTP_HOST'])) {
-    $server_scheme = @$_SERVER["HTTPS"];
-    $pageURL = ($server_scheme == "on") ? "https://" : "http://";
-    $http_url = $pageURL . $_SERVER['HTTP_HOST'];
-    $url = parse_url($wo['config']['site_url']);
-    if (!empty($url)) {
-        if ($url['scheme'] == 'http') {
-            if ($http_url != 'http://' . $url['host']) { 
-               header('Location: ' . $wo['config']['site_url']);
-               exit();
-            }
-        } else {
-            if ($http_url != 'https://' . $url['host']) { 
-               header('Location: ' . $wo['config']['site_url']);
-               exit();
-            }
-        }
-    }
-}
-if (!empty($_GET['ref']) && $wo['loggedin'] == false && !isset($_COOKIE['src'])) {
-    $get_ip = get_ip_address();
-    if (!isset($_SESSION['ref']) && !empty($get_ip)) {
-        $_GET['ref'] = Wo_Secure($_GET['ref']);
-        $ref_user_id = Wo_UserIdFromUsername($_GET['ref']);
-        $user_date = Wo_UserData($ref_user_id);
-        if (!empty($user_date)) {
-            if (ip_in_range($user_date['ip_address'], '/24') === false && $user_date['ip_address'] != $get_ip) {
-                $_SESSION['ref'] = $user_date['username'];
-            }
-        }
-    }
-}
-if (!isset($_COOKIE['src'])) {
-    @setcookie('src', '1', time() + 31556926, '/');
-}
-$page = '';
-if ($wo['loggedin'] == true && !isset($_GET['link1'])) {
-    $page = 'home';
-} elseif (isset($_GET['link1'])) {
-    $page = $_GET['link1'];
-}
-if ((!isset($_GET['link1']) && $wo['loggedin'] == false) || (isset($_GET['link1']) && $wo['loggedin'] == false && $page == 'home')) {
-    $page = 'welcome';
-}
-if ($wo['config']['maintenance_mode'] == 1) {
-    if ($wo['loggedin'] == false) {
-        if ($page == 'admincp') {
-           $page = 'welcome';
-        } else {
-            $page = 'maintenance';
-        }
-    } else {
-        if (Wo_IsAdmin() === false) {
-            $page = 'maintenance';
-        }
-    } 
-}
-if (!empty($_GET['m'])) {
-    $page = 'welcome';
-}
-switch ($page) {
-    case 'maintenance':
-        include('sources/maintenance.php');
-        break;
-    case 'get_news_feed':
-        include('sources/get_news_feed.php');
-        break;
-    case 'video-call':
-        include('sources/video.php');
-        break;
-    case 'video-call-api':
-        include('sources/video_call_api.php');
-        break;    
-    case 'home':
-        include('sources/home.php');
-        break;
-    case 'welcome':
-        include('sources/welcome.php');
-        break;
-    case 'register':
-        include('sources/register.php');
-        break;
-    case 'confirm-sms':
-        include('sources/confirm_sms.php');
-        break;   
-    case 'forgot-password':
-        include('sources/forgot_password.php');
-        break;    
-    case 'reset-password':
-        include('sources/reset_password.php');
-        break;    
-    case 'start-up':
-        include('sources/start_up.php');
-        break;
-    case 'activate':
-        include('sources/activate.php');
-        break;
-    case 'search':
-        include('sources/search.php');
-        break;
-    case 'timeline':
-        include('sources/timeline.php');
-        break;
-    case 'pages':
-        include('sources/my_pages.php');
-        break;
-    case 'go-pro':
-        include('sources/go_pro.php');
-        break;
-    case 'page':
-        include('sources/page.php');
-        break;
-    case 'groups':
-        include('sources/my_groups.php');
-        break;
-    case 'group':
-        include('sources/group.php');
-        break;
-    case 'create-group':
-        include('sources/create_group.php');
-        break;
-    case 'group-setting':
-        include('sources/group_setting.php');
-        break;
-    case 'create-page':
-        include('sources/create_page.php');
-        break;
-    case 'setting':
-        include('sources/setting.php');
-        break;
-    case 'page-setting':
-        include('sources/page_setting.php');
-        break;
-    case 'messages':
-        include('sources/messages.php');
-        break;
-    case 'logout':
-        include('sources/logout.php');
-        break;
-    case '404':
-        include('sources/404.php');
-        break;
-    case 'post':
-        include('sources/story.php');
-        break;
-    case 'game':
-        include('sources/game.php');
-        break;
-    case 'games':
-        include('sources/games.php');
-        break;
-    case 'new-game':
-        include('sources/new_games.php');
-        break;
-    case 'saved-posts':
-        include('sources/savedPosts.php');
-        break;
-    case 'hashtag':
-        include('sources/hashtag.php');
-        break;
-    case 'terms':
-        include('sources/term.php');
-        break;
-    case 'albums':
-        include('sources/my_albums.php');
-        break;
-    case 'album':
-        include('sources/album.php');
-        break;
-    case 'create-album':
-        include('sources/create_album.php');
-        break;
-    case 'contact-us':
-        include('sources/contact.php');
-        break;
-    case 'user-activation':
-        include('sources/user_activation.php');
-        break;
-    case 'upgraded':
-        include('sources/upgraded.php');
-        break;
-    case 'oops':
-        include('sources/oops.php');
-        break;
-    case 'boosted-pages':
-        include('sources/boosted_pages.php');
-        break;
-    case 'boosted-posts':
-        include('sources/boosted_posts.php');
-        break;
-    case 'new-product':
-        include('sources/new_product.php');
-        break; 
-    case 'edit-product':
-        include('sources/edit_product.php');
-        break;  
-    case 'products':
-        include('sources/products.php');
-        break;   
-    case 'my-products':
-        include('sources/my_products.php');
-        break;    
-    case 'site-pages':
-        include('sources/site_pages.php');
-        break;
-    case 'blogs':
-        include('sources/blog.php');
-        break;
-    case 'my-blogs':
-        include('sources/my_blogs.php');
-        break;
-    case 'create-blog':
-        include('sources/create_blog.php');
-        break;
-    case 'read-blog':
-        include('sources/read_blog.php');
-        break;
-    case 'edit-blog':
-        include('sources/edit_blog.php');
-        break;
-    case 'blog-category':
-        include('sources/blog_category.php');
-        break;
-    case 'forum':
-        include('sources/forum/forum.php');
-        break;
-    case 'forum-members':
-        include('sources/forum/forum_members.php');
-        break;
-    case 'forum-members-byname':
-        include('sources/forum/forum_members_byname.php');
-        break;
-    case 'forum-events':
-        include('sources/forum/forum_events.php');
-        break;
-    case 'forum-search':
-        include('sources/forum/forum_search.php');
-        break;
-    case 'forum-search-result':
-        include('sources/forum/forum_search.php');
-        break;
-    case 'forum-help':
-        include('sources/forum/forum_help.php');
-        break;
-    case 'forums':
-        include('sources/forum/forumdisplay.php');
-        break;
-    case 'forumaddthred':
-        include('sources/forum/forums_add_thread.php');
-        break;
-    case 'showthread':
-        include('sources/forum/forum_showthread.php');
-        break;
-    case 'threadreply':
-        include('sources/forum/forum_threadreply.php');
-        break;
-    case 'threadquote':
-        include('sources/forum/forum_threadquote.php');
-        break;
-    case 'editreply':
-        include('sources/forum/forum_editreply.php');
-        break;
-    case 'deletereply':
-        include('sources/forum/forum_deletereply.php');
-        break;
-    case 'mythreads':
-        include('sources/forum/forum_mythreads.php');
-        break;
-    case 'mymessages':
-        include('sources/forum/forum_mymessages.php');
-        break;
-    case 'edithread':
-        include('sources/forum/forum_edithread.php');
-        break;
-    case 'deletethread':
-        include('sources/forum/forum_deletethread.php');
-        break;
-     case 'create-event':
-        include('sources/events/create_event.php');
-        break;
-    case 'edit-event':
-        include('sources/events/edit_event.php');
-        break;
-    case 'events':
-        include('sources/events/events_upcomming.php');
-        break;
-    case 'events-going':
-        include('sources/events/events_going.php');
-        break;
-    case 'events-interested':
-        include('sources/events/events_interested.php');
-        break;
-    case 'events-past':
-        include('sources/events/events_past.php');
-        break;
-    case 'show-event':
-        include('sources/events/show_event.php');
-        break;
-    case 'events-invited':
-        include('sources/events/events_invited.php');
-        break;
-    case 'my-events':
-        include('sources/events/my_events.php');
-        break;
-   case 'oauth':
-        include('sources/oauth.php');
-        break;
-    case 'app_api':
-        include('sources/apps_api.php');
-        break;
-    case 'authorize':
-        include('sources/authorize.php');
-        break;
-    case 'app-setting':
-        include('sources/app_setting.php');
-        break;
-    case 'developers':
-        include('sources/developers.php');
-        break;
-    case 'create-app':
-        include('sources/create_app.php');
-        break;
-    case 'app':
-        include('sources/app_page.php');
-        break;
-    case 'apps':
-        include('sources/apps.php');
-        break;
-    case 'sharer':
-        include('sources/sharer.php');
-        break;
-    case 'movies':
-        include('sources/movies/movies.php');
-        break;
-    case 'movies-genre':
-        include('sources/movies/movies_genre.php');
-        break;
-    case 'movies-country':
-        include('sources/movies/movies_country.php');
-        break;
-    case 'watch-film':
-        include('sources/movies/watch_film.php');
-        break;
-    case 'ads':
-        include('sources/ads/ads.php');
-        break;
-    case 'wallet':
-        include('sources/ads/wallet.php');
-        break;
-    case 'send_money':
-        include('sources/ads/send_money.php');
-        break;
-    case 'create-ads':
-        include('sources/ads/create_ads.php');
-        break;
-    case 'edit-ads':
-        include('sources/ads/edit_ads.php');
-        break;
-    case 'manage-ads':
-        include('sources/ads/admin.php');
-        break;
-    case 'create-status':
-        include('sources/status/create.php');
-        break;
-    case 'friends-nearby':
-        include('sources/friends_nearby.php');
-        break;
-    case 'more-status':
-        include('sources/status/more-status.php');
-        break;
-}
-if (empty($wo['content'])) {
-    include('sources/404.php');
+} @session_start();
+
+/*
+|---------------------------------------------------------------
+| ob_start — Включение буферизации вывода
+|---------------------------------------------------------------
+|
+| Эта функция включает буферизацию вывода. Если буферизация вывода
+| активна, вывод скрипта не высылается (кроме заголовков), а 
+| сохраняется во внутреннем буфере. Содержимое этого внутреннего
+| буфера может быть скопировано в строковую переменную, 
+| используя ob_get_contents(). Для вывода содержимого внутреннего
+| буфера следует использовать ob_end_flush(). В качестве 
+| альтернативы можно использовать ob_end_clean() для 
+| уничтожения содержимого буфера. OptimizeHTML Оптимизируем html.
+|
+*/
+
+include_once ("html.php");
+
+ini_set('zlib.output_compression', 'On');
+ini_set('zlib.output_compression_level', '1');
+
+ob_start(array('OptimizeHTML', 'html'));
+
+/*
+|---------------------------------------------------------------
+| ob_implicit_flush — Функция включает/выключает неявный сброс
+|---------------------------------------------------------------
+|
+| ob_implicit_flush() включает или выключает неявный сброс. Неявный
+| сброс приводит к тому, что операция сброса выполняется после 
+| каждого вывода, поэтому явные вызовы функции flush() не нужны.
+|
+*/
+
+@ob_implicit_flush(0);
+
+/*
+|---------------------------------------------------------------
+| error_reporting — Задает, какие ошибки PHP попадут в отчет
+|---------------------------------------------------------------
+|
+| Функция error_reporting() задает значение директивы 
+| error_reporting во время выполнения. В PHP есть много уровней
+| ошибок. Используя эту функцию, можно задать уровень ошибок
+| времени выполнения скрипта, которые попадут в отчет. Если
+| необязательный аргумент level не задан, error_reporting()
+| вернет текущее значение уровня протоколирования ошибок.
+|
+*/
+
+@error_reporting(E_ALL ^ E_WARNING ^ E_NOTICE);
+
+/*
+|---------------------------------------------------------------
+| define — Определяет именованную константу
+|---------------------------------------------------------------
+|
+| MOZG				- Закрываем прямой просмотр файлов.
+| ROOT_DIR			- Прямой путь к файлам.
+| APPLICATION_DIR	- Путь к ядру.
+|
+*/
+
+define('MOZG', true);
+
+define('ROOT_DIR', dirname (__FILE__));
+
+define('APPLICATION_DIR', ROOT_DIR.'/application');
+
+/*
+|---------------------------------------------------------------
+| header — Отправка HTTP заголовка
+|---------------------------------------------------------------
+*/
+
+header('Content-type: text/html; charset=utf-8');
+
+/*
+|---------------------------------------------------------------
+| $ajax — Отправка ajax запросов.
+|---------------------------------------------------------------
+*/
+
+$ajax = $_POST['ajax'];
+
+/*
+|---------------------------------------------------------------
+| $logged — Закрываем доступ для тех кто не зарегистрирован.
+|---------------------------------------------------------------
+*/
+
+$logged = false;
+
+/*
+|---------------------------------------------------------------
+| $user_info — Вывод данных.
+|---------------------------------------------------------------
+*/
+
+$user_info = false;
+
+/*
+|---------------------------------------------------------------
+| init.php — Инициализируем некоторые объекты .
+|---------------------------------------------------------------
+*/
+
+include ROOT_DIR.'/init.php';
+
+/*
+|---------------------------------------------------------------
+| reg — Открываем сессию для регистрации рефералов .
+|---------------------------------------------------------------
+*/
+
+if($_GET['reg']) $_SESSION['ref_id'] = intval($_GET['reg']);
+
+/*
+|---------------------------------------------------------------
+| HTTP_USER_AGENT — Проверяем наши браузеры, если версия устарела
+| то ссылаем на объект, и закрываем доступ к сайту..
+|---------------------------------------------------------------
+*/
+
+if(stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.0')) $xBrowser = 'ie6';
+
+elseif(stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE 7.0')) $xBrowser = 'ie7';
+
+elseif(stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE 8.0')) $xBrowser = 'ie8';
+
+if($xBrowser == 'ie6' OR $xBrowser == 'ie7' OR $xBrowser == 'ie8')
+
+header("Location: /application/doc_bin/badbrowser.php");
+
+/*
+|---------------------------------------------------------------
+| $CacheNews — Идентифицируем данные и делаем новую запись в cache сети.
+| Проверяем на наличие обновлений пользователя.
+|---------------------------------------------------------------
+*/
+
+$CacheNews = mozg_cache('user_'.$user_info['user_id'].'/new_news');
+
+if($CacheNews){
+
+	$new_news = "{$CacheNews}";
+
+	$news_link = '/notifications';
+
 }
 
-echo Wo_Loadpage('container');
+/*
+|---------------------------------------------------------------
+| $user_pm_num — Получаем количество сообщений пользователя.
+|---------------------------------------------------------------
+*/
 
-mysqli_close($sqlConnect);
-unset($wo);
+$user_pm_num = $user_info['user_pm_num'];
+
+if($user_pm_num)
+
+	$user_pm_num = "({$user_pm_num})";
+
+else
+
+	$user_pm_num = '';
+
+/*
+|---------------------------------------------------------------
+| $user_new_groups — Получаем количество новых групп.
+|---------------------------------------------------------------
+*/
+
+$user_new_groups = $user_info['user_new_groups'];
+
+if($user_new_groups)
+
+	$user_new_groups = "({$user_new_groups})";
+
+else
+
+	$user_new_groups = '';
+
+/*
+|---------------------------------------------------------------
+| $user_friends_demands — Получаем количество заявок на дружбу.
+|---------------------------------------------------------------
+*/
+
+$user_friends_demands = $user_info['user_friends_demands'];
+
+if($user_friends_demands){
+
+	$demands = "({$user_friends_demands})";
+
+	$requests_link = '/requests';
+
+} else
+
+	$demands = '';
+
+/*
+|---------------------------------------------------------------
+| $user_support — Получаем количество записей в суппорте .
+|---------------------------------------------------------------
+*/
+
+$user_support = $user_info['user_support'];
+
+if($user_support)
+
+	$support = "{$user_support}";
+
+else
+
+	$support = '';
+
+/*
+|---------------------------------------------------------------
+| user_new_mark_photos — Получаем отметки на фотографиях .
+|---------------------------------------------------------------
+*/
+
+if($user_info['user_new_mark_photos']){
+
+	$new_photos_link = 'newphotos';
+
+	$new_photos = "+{$user_info['user_new_mark_photos']}";
+
+} else {
+
+	$new_photos = '';
+
+	$new_photos_link = $user_info['user_id'];
+
+}
+
+/*
+|---------------------------------------------------------------
+| $ajax — Включаем ajax подгрузку.
+|---------------------------------------------------------------
+*/
+
+if($ajax == 'yes'){
+
+	if($_SERVER['REQUEST_METHOD'] == 'POST' AND $ajax != 'yes')
+
+		die('No Ajax');
+
+	if($spBar)
+
+		$ajaxSpBar = "$('#fm_wrap_bar').show().html('{$fm_wrap_bar}')";
+
+	else
+
+		$ajaxSpBar = "$('#fm_wrap_bar').hide()";
+
+/*
+|---------------------------------------------------------------
+| $result_ajax — Получаем и выводим js результаты.
+|---------------------------------------------------------------
+*/
+
+$result_ajax = <<<HTML
+
+<script type="text/javascript">
+
+	document.title = '{$metatags['title']}';
+
+	{$ajaxSpBar};
+
+	document.getElementById('new_msg').innerHTML = '{$user_pm_num}';
+
+	document.getElementById('new_groups').innerHTML = '{$user_new_groups}';
+
+	document.getElementById('new_news').innerHTML = '{$new_news}';
+
+	document.getElementById('new_support').innerHTML = '{$support}';
+
+	document.getElementById('news_link').setAttribute('href', '/news{$news_link}');
+
+	document.getElementById('new_requests').innerHTML = '{$demands}';
+
+	document.getElementById('new_photos').innerHTML = '{$new_photos}';
+
+	document.getElementById('requests_link_new_photos').setAttribute('href', '/albums/{$new_photos_link}');
+
+	document.getElementById('requests_link').setAttribute('href', '/friends{$requests_link}');
+
+</script>
+
+{$tpl->result['info']}{$tpl->result['content']}
+
+HTML;
+
+echo str_replace('{theme}', '/html/', $result_ajax);
+
+$tpl->global_clear();
+
+$db->close();
+
+/*
+|---------------------------------------------------------------
+| gzip — значение yes - включено зжатие, закрываем GzipOut();.
+|---------------------------------------------------------------
+*/
+
+if($config['gzip'] == 'yes')
+
+		GzipOut();
+
+	die();
+
+}
+
+/*
+|---------------------------------------------------------------
+| main — Загружаем корень шаблона.
+|---------------------------------------------------------------
+*/
+
+if(!$logged AND $go == 'main'){
+
+	$tpl->load_template('index.html');
+
+	$fm_count_user = $db->super_query("SELECT COUNT(*) AS cnt FROM `".PREFIX."_users`");
+
+	$tpl->set('{cnt}', $fm_count_user['cnt']);
+
+} else {
+
+	$tpl->load_template('main.html');
+
+}
+
+/*
+|---------------------------------------------------------------
+| user_photo — Загружаем мини изображения пользователя в header.
+|---------------------------------------------------------------
+*/
+
+if($logged){
+
+	if($user_info['user_photo'])
+
+		$ava = $config['home_url'].'uploads/users/'.$user_info['user_id'].'/100_'.$user_info['user_photo'];
+
+	else 
+
+		$ava = '/images/no_ava_50.png';
+
+	$myphoto_header.='<img src="'.$ava.'" width="23" />'."\n";
+
+	$tpl->set('{myphoto_header}', $myphoto_header);
+
+}
+
+/*
+|---------------------------------------------------------------
+| alias — Проверяем на наличия alias для пользователя, если он 
+| установлен то выводим его..
+|---------------------------------------------------------------
+*/
+
+if($user_info['alias']){
+
+	$tpl->set('{alias-main}', $user_info['alias']); 
+
+		} else {
+
+	$tpl->set('{alias-main}', 'id'.$user_info['user_id']);
+
+}
+
+/*
+|---------------------------------------------------------------
+| Выводы — Елементы шаблона.
+|---------------------------------------------------------------
+*/
+
+if($logged){
+
+	$tpl->set_block("'\\[not-logged\\](.*?)\\[/not-logged\\]'si","");
+
+	$tpl->set('[logged]','');
+
+	$tpl->set('[/logged]','');
+
+	$tpl->set('{my-page-link}', '/id'.$user_info['user_id']);
+
+	$tpl->set('{my-id}', $user_info['user_id']);
+
+/*
+|---------------------------------------------------------------
+| $user_friends_demands — Получаем количество записей в суппорте .
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+	
+	$user_friends_demands = $user_info['user_friends_demands'];
+
+	if($user_friends_demands){
+
+		$tpl->set('{demands}', $demands);
+
+		$tpl->set('{requests-link}', $requests_link);
+
+	} else {
+
+		$tpl->set('{demands}', '');
+
+		$tpl->set('{requests-link}', '');
+
+	}
+
+/*
+|---------------------------------------------------------------
+| $CacheNews — Идентифицируем данные и делаем новую запись в cache сети.
+| Проверяем на наличие обновлений пользователя.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($CacheNews){
+
+	$tpl->set('{new-news}', $new_news);
+
+	$tpl->set('{news-link}', $news_link);
+
+} else {
+
+	$tpl->set('{new-news}', '');
+
+	$tpl->set('{news-link}', '');
+
+}
+
+/*
+|---------------------------------------------------------------
+| $user_pm_num — Получаем количество сообщений пользователя.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($user_pm_num)
+
+	$tpl->set('{msg}', $user_pm_num);
+
+else 
+
+	$tpl->set('{msg}', '');
+
+/*
+|---------------------------------------------------------------
+| $user_new_groups — Получаем количество новых групп.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($user_new_groups)
+
+	$tpl->set('{new_groups}', $user_new_groups);
+
+else 
+
+	$tpl->set('{new_groups}', '');
+
+/*
+|---------------------------------------------------------------
+| $user_support — Получаем количество записей в суппорте.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($user_support)
+
+	$tpl->set('{new-support}', $support);
+
+else 
+
+	$tpl->set('{new-support}', '');
+
+/*
+|---------------------------------------------------------------
+| user_new_mark_photos — Получаем отметки на фотографиях.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($user_info['user_new_mark_photos']){
+
+	$tpl->set('{my-id}', 'newphotos');
+
+	$tpl->set('{new_photos}', $new_photos);
+
+} else 
+
+	$tpl->set('{new_photos}', '');
+
+} else {
+
+	$tpl->set_block("'\\[logged\\](.*?)\\[/logged\\]'si","");
+
+	$tpl->set('[not-logged]','');
+
+	$tpl->set('[/not-logged]','');
+
+	$tpl->set('{my-page-link}', '');
+
+}
+
+/*
+|---------------------------------------------------------------
+| user_img_fon — Подгружаем фон пользователя если он установлен.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($user_info['user_img_fon']){
+
+	$tpl->set('{fon_facemy}', $user_info['user_img_fon']);
+
+} else {
+
+	$tpl->set('{fon_facemy}', '/images/bg_top.gif');
+
+}
+
+/*
+|---------------------------------------------------------------
+| {header} — Подгружаем meta данные.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+$tpl->set('{header}', $headers);
+
+/*
+|---------------------------------------------------------------
+| {fm_wrap_bar} — Подгружаем bar для вывода информации.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+$tpl->set('{fm_wrap_bar}', $fm_wrap_bar);
+
+/*
+|---------------------------------------------------------------
+| {info} — Выводим с генерирование данные.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+$tpl->set('{info}', $tpl->result['info']);
+
+/*
+|---------------------------------------------------------------
+| {content} — Загружаем все данные в контент шаблона.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+$tpl->set('{content}', $tpl->result['content']);
+
+/*
+|---------------------------------------------------------------
+| $spBar — Открываем закрываем bar блок.
+| И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($spBar)
+
+	$tpl->set_block("'\\[fm_wrap_bar\\](.*?)\\[/fm_wrap_bar\\]'si","");
+
+else {
+
+	$tpl->set('[fm_wrap_bar]','');
+
+	$tpl->set('[/fm_wrap_bar]','');
+
+}
+
+/*
+|---------------------------------------------------------------
+| {js} — Подгружаем js файлы. И выводим в шаблоне.
+|---------------------------------------------------------------
+*/
+
+if($logged)
+
+	$tpl->set('{js}', '
+
+	<script type="text/javascript" src="/js/jquery.lib.js"></script>
+
+	<script type="text/javascript" src="/js/main.js"></script>
+
+	<script type="text/javascript" src="/js/common.js"></script>
+
+	<script type="text/javascript" src="/js/apps.js"></script>
+
+	<script type="text/javascript" src="/js/apps_edit.js"></script>
+
+	<script type="text/javascript" src="/js/rating.js"></script>
+
+	<script type="text/javascript" src="/js/audio_player.js"></script>
+
+');
+
+else
+
+	$tpl->set('{js}', '
+
+	<script type="text/javascript" src="/js/jquery.lib.js"></script>
+
+	<script type="text/javascript" src="/js/main.js"></script>
+
+');
+/*
+|---------------------------------------------------------------
+| mobile — Вывводим и подключаем данные для мобильной версии
+|---------------------------------------------------------------
+*/
+
+if($_SESSION['user_mobile'] == 1){
+
+$new_actions = $demands+$new_news+$user_pm_num+$support;
+if($new_actions > 0)
+$tpl->set('{new-actions}', $new_actions);
+else
+$tpl->set('{new-actions}', '');
+
+if($user_info['user_photo'])
+$ava =$config['home_url'].'/uploads/users/'.$user_info['user_id'].'/50_'.$user_info['user_photo'];
+else
+$ava = '/templates/Default/images/no_ava_50.gif';
+
+$tpl->set('{mobile-speedbar}', $speedbar);
+$tpl->set('{my-name}', $user_info['user_search_pref']);
+$tpl->set('{status-mobile}', $user_info['user_status']);
+$tpl->set('{my-ava}', $ava);
+
+}
+
+/*
+|---------------------------------------------------------------
+| compile — компилируем все данные для main.
+|---------------------------------------------------------------
+*/
+
+$tpl->compile('main');
+
+echo str_replace('{theme}', '/html/', $tpl->result['main']);
+
+$tpl->global_clear();
+
+$db->close();
+
+if($config['gzip'] == 'yes')
+
+	GzipOut();
+
 ?>
